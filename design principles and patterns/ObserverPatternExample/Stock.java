@@ -1,19 +1,21 @@
 package ObserverPatternExample;
 import java.util.*;
 
+// Subject interface
 interface Stock {
     void register(Observer o);
     void deregister(Observer o);
-    void notifyObservers(double price);
+    void notifyObservers();
 }
 
+// Concrete Subject
 class StockMarket implements Stock {
     private List<Observer> observers = new ArrayList<>();
     private double price;
 
     public void setPrice(double price) {
         this.price = price;
-        notifyObservers(price);
+        notifyObservers(); // use class-level field
     }
 
     public void register(Observer o) {
@@ -24,17 +26,19 @@ class StockMarket implements Stock {
         observers.remove(o);
     }
 
-    public void notifyObservers(double price) {
+    public void notifyObservers() {
         for (Observer o : observers) {
-            o.update(price);
+            o.update(price); // use class-level price
         }
     }
 }
 
+// Observer interface
 interface Observer {
     void update(double price);
 }
 
+// Concrete Observers
 class MobileApp implements Observer {
     public void update(double price) {
         System.out.println("MobileApp: Stock price updated to " + price);
@@ -47,6 +51,7 @@ class WebApp implements Observer {
     }
 }
 
+// Test class
 class Test {
     public static void main(String[] args) {
         StockMarket market = new StockMarket();
@@ -64,3 +69,4 @@ class Test {
         market.setPrice(1300.0);
     }
 }
+
