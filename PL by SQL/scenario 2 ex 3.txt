@@ -1,0 +1,34 @@
+CREATE TABLE Employees (
+    EmployeeID NUMBER PRIMARY KEY,
+    Name VARCHAR2(100),
+    Position VARCHAR2(50),
+    Salary NUMBER,
+    Department VARCHAR2(50),
+    HireDate DATE
+);
+
+CREATE OR REPLACE PROCEDURE UpdateEmployeeBonus (
+   p_Department IN VARCHAR2,
+   p_BonusPercent IN NUMBER
+) AS
+BEGIN
+  -- Update salaries
+  UPDATE Employees
+  SET Salary = Salary + (Salary * p_BonusPercent / 100)
+  WHERE Department = p_Department;
+
+  -- Print updated employees
+  FOR rec IN (
+    SELECT Name, Salary FROM Employees WHERE Department = p_Department
+  ) LOOP
+    DBMS_OUTPUT.PUT_LINE('Updated: ' || rec.Name || ' | New Salary: ₹' || rec.Salary);
+  END LOOP;
+
+  COMMIT;
+END;
+/
+SET SERVEROUTPUT ON;
+BEGIN
+  UpdateEmployeeBonus('IT', 10);
+END;
+/

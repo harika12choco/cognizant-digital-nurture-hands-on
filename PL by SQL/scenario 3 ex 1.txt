@@ -1,0 +1,33 @@
+CREATE TABLE Customer (
+    CustomerID NUMBER PRIMARY KEY,
+    Name VARCHAR2(100),
+    DOB DATE,
+    Balance NUMBER,
+    LastModified DATE,
+    IsVIP VARCHAR2(5)
+);
+CREATE TABLE Loans (
+    LoanID NUMBER PRIMARY KEY,
+    CustomerID NUMBER,
+    LoanAmount NUMBER,
+    InterestRate NUMBER,
+    StartDate DATE,
+    EndDate DATE,
+    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID)
+);
+INSERT INTO Customer VALUES (99, 'Test User', TO_DATE('1960-01-01','YYYY-MM-DD'), 5000, SYSDATE, NULL);
+INSERT INTO Loans VALUES (99, 99, 2000, 5, SYSDATE, SYSDATE + 15); -- due in 15 days
+COMMIT;
+BEGIN
+  FOR rec IN (
+    SELECT c.Name, l.LoanID, l.EndDate
+    FROM Customer c
+    JOIN Loans l ON c.CustomerID = l.CustomerID
+    WHERE l.EndDate BETWEEN SYSDATE AND SYSDATE + 30
+  ) LOOP
+    DBMS_OUTPUT.PUT_LINE(' Reminder: ' || rec.Name || 
+                         ', your loan (ID: ' || rec.LoanID || 
+                         ') is due on ' || TO_CHAR(rec.EndDate, 'DD-MON-YYYY') || '.');
+  END LOOP;
+END;
+/

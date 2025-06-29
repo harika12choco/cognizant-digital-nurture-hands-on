@@ -1,0 +1,40 @@
+CREATE TABLE Customer (
+    CustomerID NUMBER PRIMARY KEY,
+    Name VARCHAR2(100),
+    DOB DATE,
+    Balance NUMBER,
+    LastModified DATE,
+    IsVIP VARCHAR2(5)
+);
+CREATE TABLE Loans (
+    LoanID NUMBER PRIMARY KEY,
+    CustomerID NUMBER,
+    LoanAmount NUMBER,
+    InterestRate NUMBER,
+    StartDate DATE,
+    EndDate DATE,
+    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID)
+);
+INSERT INTO Customer VALUES (
+    2, 'John Doe', TO_DATE('1950-05-15', 'YYYY-MM-DD'), 12000, SYSDATE, NULL
+);
+INSERT INTO Loans VALUES (
+    1, 2, 10000, 5, SYSDATE, ADD_MONTHS(SYSDATE, 12)
+);
+COMMIT;
+BEGIN
+  FOR rec IN (
+    SELECT c.CustomerID, c.Name, l.LoanID, l.InterestRate, c.DOB
+    FROM Customer c
+    JOIN Loans l ON c.CustomerID = l.CustomerID
+    WHERE MONTHS_BETWEEN(SYSDATE, c.DOB)/12 > 60
+  ) LOOP
+    UPDATE Loans
+    SET InterestRate = rec.InterestRate - 1
+    WHERE LoanID = rec.LoanID;
+
+    DBMS_OUTPUT.PUT_LINE(' Applied discount for Customer ' || rec.Name || ' (ID: ' || rec.CustomerID || ')');
+  END LOOP;
+  COMMIT;
+END;
+/
