@@ -1,0 +1,21 @@
+package com.example.calc;
+
+import static org.junit.Assert.*;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+
+public class CalculatorTest {
+
+	  @Test
+	    public void testAdd() {
+	        Calculator calc = new Calculator();
+	        int result = calc.add(10, 5);
+	        assertEquals(15, result);
+	    }
+
+}
