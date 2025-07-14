@@ -1,0 +1,42 @@
+CREATE OR REPLACE PROCEDURE TransferFunds(
+  p_FromAccountID IN NUMBER,
+  p_ToAccountID IN NUMBER,
+  p_Amount IN NUMBER
+) AS
+  v_FromBalance NUMBER;
+  BEGIN
+  -- Get current balance of source account
+  SELECT Balance INTO v_FromBalance
+  FROM Accounts
+  WHERE AccountID = p_FromAccountID;
+
+  -- Check if balance is sufficient
+  IF v_FromBalance < p_Amount THEN
+    DBMS_OUTPUT.PUT_LINE('Transfer failed: Insufficient balance.');
+    RETURN;
+  END IF;
+
+  -- Deduct amount from source account
+  UPDATE Accounts
+  SET Balance = Balance - p_Amount
+  WHERE AccountID = p_FromAccountID;
+
+  -- Add amount to destination account
+  UPDATE Accounts
+  SET Balance = Balance + p_Amount
+  WHERE AccountID = p_ToAccountID;
+
+  DBMS_OUTPUT.PUT_LINE('Transfer successful!');
+  COMMIT;
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('Account not found.');
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Unexpected error: ' || SQLERRM);
+END;
+/
+SET SERVEROUTPUT ON;
+BEGIN
+  TransferFunds(1, 2, 300);  -- Transfer ₹300 from Account 1 to Account 2
+END;
+/
