@@ -1,0 +1,31 @@
+CREATE TABLE Accounts (
+    AccountID NUMBER PRIMARY KEY,
+    CustomerID NUMBER,
+    AccountType VARCHAR2(20),
+    Balance NUMBER,
+    LastModified DATE,
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
+);
+INSERT INTO Customers (CustomerID, Name, DOB, Balance, LastModified)
+VALUES (1, 'John Doe', TO_DATE('1985-05-15', 'YYYY-MM-DD'), 1000, SYSDATE);
+INSERT INTO Accounts (AccountID, CustomerID, AccountType, Balance, LastModified)
+VALUES (1, 1, 'Savings', 1000, SYSDATE);
+CREATE OR REPLACE PROCEDURE ProcessMonthlyInterest AS
+BEGIN
+  FOR rec IN (
+    SELECT AccountID, Balance 
+    FROM Accounts 
+    WHERE AccountType = 'Savings'
+  ) LOOP
+    UPDATE Accounts
+    SET Balance = Balance + (rec.Balance * 0.01)
+    WHERE AccountID = rec.AccountID;
+  END LOOP;
+
+  COMMIT;
+END;
+/
+BEGIN
+  ProcessMonthlyInterest;
+END;
+/
